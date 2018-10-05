@@ -39,7 +39,7 @@
 2. Import the DB scheme from `/schema/cinema.sql`
 3. Open the file `/config/config.php` and configure the basic settings:
 
-`Config::set('site_name', 'Cinema');` - название сайта 
+`Config::set('site_name', 'Cinema');` - name of the site
 <br>
 `Config::set ('routes', array(  
     'default' => '',
