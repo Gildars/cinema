@@ -25,7 +25,21 @@
 		    ├───fonts
 		    ├───img
 		    └───js
-		
+		  
+<h1>More about architecture</h1>
+
+The application is written according to the MVC methodology.
+* `index.php` -  is the entry point to the application.
+* `/lib/config.class.php` - The class is responsible for saving the site settings, such as the parameters of the connection with the database. 
+* `/lib/app.class.php` - This is the main class. Creates all the necessary objects for the application.
+* `/lib/pagination.class.php` - This class is responsible for paginated browsing.
+* `/lib/init.php` - Class Autoloader.
+* `/lib/model.class.php` - The base class of the model for working with the database.
+* `/lib/router.class.php` - This class parses the url string into parts.
+* `/lib/session.class.php` - Class for working with sessions and messages for users.
+* `/lib/view.class.php` - Class displays html content.
+* `/lib/db.class.php` - This is a class for working with DB.
+
 <h1>How to install?</h1>
 <h4>Environment requirements</h4>
 
