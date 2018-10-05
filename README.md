@@ -11,16 +11,16 @@
 <h1> File structure </h1>
 
 		C:.
-		├───config - configuration files
-		├───controllers - contains controllers
-		├───import - contains a text file for importing data into a database
-		├───lib - libraries for the normal functioning of the site
-		├───models - contains models for working with the database 
-		├───schema - schema database
-		├───views - pages with markup site
+		├───config 		- configuration files
+		├───controllers 	- contains controllers
+		├───import 		- contains a text file for importing data into a database
+		├───lib 		- libraries for the normal functioning of the site
+		├───models 		- contains models for working with the database 
+		├───schema 		- schema database
+		├───views 		- pages with markup site
 		│   ├───films
 		│   └───pages
-		└───webroot - public resources for the user
+		└───webroot 		- public resources for the user
 		    ├───css
 		    ├───fonts
 		    ├───img
