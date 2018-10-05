@@ -1,0 +1,25 @@
+<h6><?php if(isset($data['films'])) echo 'Вот что нам удалось найти';?></h6>
+<?php
+    if(isset($data['films'])){
+    foreach($data['films'] as $film){
+    ?>
+<div class="text-xl-left"></div><a href="/films/view/<?=$film['id']?>"><?=$film['title']?> (<?=$film['release']?>)</a>
+<?php
+    }
+    }else { echo 'Фильмов не найдено.'; }
+?>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <?php foreach ($data['button']->buttons as $button) :
+        if ($button->isActive) : ?>
+        <li class="page-item active">
+            <a class="page-link"
+               href="/films/search/<?=$button->page?>?t=<?=$_GET['t']?>&s=<?=$_GET['s']?>"><?=$button->text?></a>
+        </li>
+        <?php else : ?>
+        <li class="page-item"><a class="page-link" href="/films/search/<?=$button->page?>"><?=$button->text?></a></li>
+        <?php endif;
+endforeach; ?>
+    </ul>
+</nav>

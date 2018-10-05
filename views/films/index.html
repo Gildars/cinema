@@ -1,0 +1,42 @@
+<a href="/films/index/<?=$data['currentPage']?>?order=ASC">Отсортирвоать в алфавитном порядке</a> <br>
+<?php
+    if(isset($data['films'])){
+    foreach($data['films'] as $film){
+    ?>
+        <div class="text-xl-left"></div><a href="/films/view/<?=$film['id']?>"><?=$film['title']?> (<?=$film['release']?>)</a>
+        <?php
+    }
+    }else { echo 'Фильмов не найдено.'; }
+?>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <?php foreach ($data['button']->buttons as $button) :
+        if ($button->isActive) : ?>
+        <li class="page-item active"><a class="page-link" href="/films/index/<?=$button->page?>"><?=$button->text?></a>
+        </li>
+        <?php else : ?>
+        <li class="page-item"><a class="page-link" href="/films/index/<?=$button->page?>"><?=$button->text?></a></li>
+        <?php endif;
+endforeach; ?>
+    </ul>
+</nav>
+
+
+<!--
+<div class="large-12 large-centered">
+    <center>
+    <ul class="pagination" role="navigation" aria-label="Pagination">
+        <?php foreach ($data['button']->buttons as $button) :
+        if ($button->isActive) : ?>
+        <li><a href = '<?=$data['link']?><?=$button->page?>'><?=$button->text?></a></li>
+        <?php else : ?>
+        <li class="current"><?=$button->text?></li>
+        <?php endif;
+endforeach; ?>
+    </ul>
+        </center>>
+
+</div>
+
+-->

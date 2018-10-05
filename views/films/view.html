@@ -1,0 +1,48 @@
+<?php if(isset($data['film'])) {?>
+<div class="col-md-12" style="">
+    <div class="card-body">
+        <h2 class="card-title" id="titleFilm"><?=$data['film'][0]['title']?></h2>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item" id="idFilm"><strong># </strong><?=$data['film'][0]['id']?></li>
+        <li class="list-group-item"><strong>Формат:</strong> <?=$data['film'][0]['format']?></li>
+        <li class="list-group-item"><strong>Год релиза:</strong> <?=$data['film'][0]['release']?></li>
+    </ul>
+    <div class="card-body">
+        <button type="button" class="btn btn-danger" id="removeFilm">Удалить</button>
+    </div>
+    <div class="card-body">
+        <h5>Актерский состав</h5>
+    </div>
+    <table class="table">
+        <tbody>
+        <?php
+        $countActors = 0;
+        foreach($data['film'] as $actor){
+        ($actor['name']) ? $countActors = 1 : $countActors;
+        if($countActors >= 1){
+        ?>
+        <tr>
+            <td><?=$actor['name']?></td>
+        </tr>
+        <?php }else{ ?>
+        <tr>
+            <td>Данные об актерском составе отсутствуют</td>
+        </tr>
+        <?php
+        }
+        }
+        ?>
+        </tbody>
+    </table>
+</div>
+<?php } ?>
+<script>
+    document.getElementById('removeFilm').onclick = function () {
+        var titleFilm = document.getElementById('titleFilm').innerText;
+        var idFilm = document.getElementById('idFilm').innerText.slice(2);
+        if (confirm('Вы хоитет удалить фильм ' + titleFilm + '?')) {
+            location.href = '/films/remove/' + idFilm;
+        }
+    };
+</script>
