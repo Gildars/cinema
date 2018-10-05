@@ -1,3 +1,4 @@
+![screenshot of sample](https://image.ibb.co/htyVMz/Screenshot_1.png) 
 <h1>Functions that the system supports</h1>
 
 1. Add a movie
