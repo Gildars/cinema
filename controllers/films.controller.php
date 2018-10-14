@@ -11,7 +11,7 @@ class FilmsController extends Controller
 
     public function index()
     {
-        $page = isset($params[0]) ? (int)($this->params[0]) : 1;
+        $page = !empty($this->params[0]) ? $this->params[0] : 1;
         $order = (isset($_GET['order'])) ? true : false;
         $this->data['currentPage'] = $page;
         $filmsCount = $this->model->getCountFilms();
@@ -79,8 +79,9 @@ class FilmsController extends Controller
     {
         if (!empty($_POST)) {
             $response = [];
-            if ($this->model->validationAddFilm($_POST) === true) {
-                $film = $this->model->addFilm($_POST);
+            $data = $this->model->validationAddFilm($_POST);
+            if ($data !== false) {
+                $film = $this->model->addFilm($data);
                 if ($film == true) {
                     Router::redirect("/films/view/$film/");
                 }

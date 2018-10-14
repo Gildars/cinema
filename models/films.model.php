@@ -2,19 +2,19 @@
 
 class FilmsModel extends Model
 {
-    public function validationAddFilm(array $data): bool
+    public function validationAddFilm(array $data)
     {
-        var_dump($data);
         if (isset($data['title']) && isset($data['release']) && isset($data['format']) && isset($data['name'])) {
             if (strlen($data['title']) < 50 && strlen($data['release']) == 4 && strlen($data['format']) < 12) {
-                $data['title'] = $this->db->getConnection()->real_escape_string($this->clean($data['title']));
-                $data['release'] = $this->db->getConnection()->real_escape_string($this->clean($data['release']));
-                $data['format'] = $this->db->getConnection()->real_escape_string($this->clean($data['format']));
+                $data['title'] = $this->clean($data['title']);
+                $data['release'] = $this->clean($data['release']);
+                $data['format'] = $this->clean($data['format']);
+                if ($data['release'] > date('Y')) return false;
                 foreach ($data['name'] as $key => $value) {
                     if (!strlen($value) > 50) return false;
-                    $data['name'][$key] = $this->db->getConnection()->real_escape_string($this->clean($data['name'][$key]));
+                    $data['name'][$key] = $this->clean($data['name'][$key]);
                 }
-                return true;
+                return $data;
             } else {
                 return false;
             }
@@ -34,11 +34,13 @@ class FilmsModel extends Model
 
     public function getFilmsLimit($limit, $order)
     {
+        $limit = $this->clean($limit);
+        $order = $this->clean($order);
         if ($order) {
             $sql = "
 SELECT `id`, `title`, `release` 
 FROM films 
-ORDER BY title
+ORDER BY title +0, `title`
 LIMIT {$limit},21  
 ";
         } else {
@@ -76,7 +78,6 @@ LIMIT {$limit},21
         }
         $i = 0;
         foreach ($data['name'] as $name) {
-            $name = $this->db->getConnection()->real_escape_string($name);
             $queryAddActors = $this->db->query("
         INSERT INTO actors 
         SET
@@ -132,24 +133,24 @@ WHERE films.id = {$id}
         return ($this->db->getConnection()->affected_rows) ? true : false;
     }
 
-    public function searchFilmsByTitle(string $string, int $limit = 0, string $order = null)
+    public function searchFilmsByTitle(string $string, int $limit = 0)
     {
-        $string = $this->db->getConnection()->real_escape_string($this->clean($string));
+        $string = $this->clean($string);
+        $limit = $this->clean($limit);
+
         $result = null;
-        if ($order === null) {
-            $result = $this->db->query("
+        $result = $this->db->query("
 SELECT `id`, `title`, `release` 
 FROM films 
-WHERE `title` LIKE '%{$string}%'
+WHERE `title` ORDER BY '%{$string}%'
 LIMIT 0,21
 ");
-        }
         return ($result) ? $result : false;
     }
 
     public function searchFilmsByActor(string $string, int $limit = 0, string $order = null)
     {
-        $string = $this->db->getConnection()->real_escape_string($this->clean($string));
+        $string = $this->clean($string);
         $result = null;
         if ($order == null) {
             $result = $this->db->query("
