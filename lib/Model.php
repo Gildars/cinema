@@ -1,17 +1,17 @@
 <?php
 
+namespace App\Cinema\Lib;
 
 class Model
 {
-
     protected $db;
 
     public function __construct()
     {
-        $this->db = App::$db;
+        $this->db = Bootstrap::$db;
     }
 
-    function clean($value = "")
+    public function clean($value = "")
     {
         $value = XSSCleaner::xss_clean($value);
         $value = trim($value);
@@ -22,7 +22,7 @@ class Model
         return $value;
     }
 
-    function check_length($value = '', $min, $max)
+    public function check_length($value, $min, $max)
     {
         $result = (mb_strlen($value) < $min || mb_strlen($value) > $max);
         return !$result;

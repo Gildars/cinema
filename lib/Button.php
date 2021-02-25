@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Cinema\Lib;
+
 class Button
 {
     public $page;

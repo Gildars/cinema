@@ -1,8 +1,11 @@
 <?php
 
+namespace App\Cinema\Controller;
+
+use App\Cinema\Lib\Controller;
+
 class PagesController extends Controller
 {
-
     public function __construct($data = array())
     {
         parent::__construct($data);
@@ -10,7 +13,5 @@ class PagesController extends Controller
 
     public function notFound()
     {
-
     }
-
 }

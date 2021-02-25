@@ -1,10 +1,12 @@
 <?php
 
+namespace App\Cinema\Lib;
+
 class Pagination
 {
     public $buttons = array();
 
-    public function __construct(Array $options = array('itemsCount' => 257, 'itemsPerPage' => 5, 'currentPage' => 1))
+    public function __construct(array $options = array('itemsCount' => 257, 'itemsPerPage' => 5, 'currentPage' => 1))
     {
         extract($options);
 
@@ -14,8 +16,8 @@ class Pagination
         }
 
         /** @var int $pagesCount
-         *  @var int $itemsCount
-         *  @var int $itemsPerPage
+         * @var int $itemsCount
+         * @var int $itemsPerPage
          */
         $pagesCount = ceil($itemsCount / $itemsPerPage);
 

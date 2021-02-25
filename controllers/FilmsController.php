@@ -1,8 +1,16 @@
 <?php
 
+namespace App\Cinema\Controller;
+
+use App\Cinema\Lib\Bootstrap;
+use App\Cinema\Lib\Controller;
+use App\Cinema\Lib\Pagination;
+use App\Cinema\Lib\Router;
+use App\Cinema\Lib\Session;
+use App\Cinema\Model\FilmsModel;
+
 class FilmsController extends Controller
 {
-
     public function __construct($data = array())
     {
         parent::__construct($data);
@@ -93,7 +101,7 @@ class FilmsController extends Controller
 
     public function view()
     {
-        $params = App::getRouter()->getParams();
+        $params = Bootstrap::getRouter()->getParams();
         if ($params[0]) {
             $film = $this->model->getFilmInfoById($params[0]);
             if ($film) {
@@ -104,12 +112,10 @@ class FilmsController extends Controller
         } else {
             Router::redirect('/');
         }
-
     }
 
     public function import()
     {
-
         if (isset($_FILES['file'])) {
             $allowedExts = array("txt");
             $temp = explode(".", $_FILES["file"]["name"]);
@@ -121,7 +127,6 @@ class FilmsController extends Controller
                 if ($_FILES["file"]["error"] > 0) {
                     Session::setFlash("Ошибка загрузки файла. Code: " . $_FILES["file"]["error"]);
                 } else {
-
                     $file = file_get_contents($_FILES['file']['tmp_name']);
                     $data = [];
                     $film = [
@@ -157,8 +162,11 @@ class FilmsController extends Controller
                                         $film['release'] = $value2;
                                     } elseif ($value1 == 'stars') {
                                         $firstNameAndSurname = null;
-                                        preg_match_all("/[A-zА-яё\]+\s[a-zа-яё]+(?=[,]*)/",
-                                            $value2, $firstNameAndSurname);
+                                        preg_match_all(
+                                            "/[A-zА-яё\]+\s[a-zа-яё]+(?=[,]*)/",
+                                            $value2,
+                                            $firstNameAndSurname
+                                        );
                                         foreach ($firstNameAndSurname[0] as $name) {
                                             $name = trim($name);
                                             array_push($film['name'], $name);

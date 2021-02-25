@@ -1,6 +1,11 @@
 <?php
 
-class DB
+namespace App\Cinema\Lib;
+
+use Exception;
+use mysqli;
+
+class Database
 {
     protected $connection;
 

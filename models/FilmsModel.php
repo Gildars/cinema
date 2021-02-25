@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Cinema\Model;
+
+use App\Cinema\Lib\Model;
+
 class FilmsModel extends Model
 {
     public function validationAddFilm(array $data)
@@ -9,9 +13,13 @@ class FilmsModel extends Model
                 $data['title'] = $this->clean($data['title']);
                 $data['release'] = $this->clean($data['release']);
                 $data['format'] = $this->clean($data['format']);
-                if ($data['release'] > date('Y')) return false;
+                if ($data['release'] > date('Y')) {
+                    return false;
+                }
                 foreach ($data['name'] as $key => $value) {
-                    if (!strlen($value) > 50) return false;
+                    if (!strlen($value) > 50) {
+                        return false;
+                    }
                     $data['name'][$key] = $this->clean($data['name'][$key]);
                 }
                 return $data;
@@ -61,7 +69,6 @@ LIMIT {$limit},21
 
     public function addFilm(array $data)
     {
-
         $this->db->getConnection()->begin_transaction();
         $actorsId = [];
         $queryAddFilms = $this->db->query("
