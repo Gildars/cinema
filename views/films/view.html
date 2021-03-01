@@ -39,8 +39,8 @@
 <?php } ?>
 <script>
     document.getElementById('removeFilm').onclick = function () {
-        var titleFilm = document.getElementById('titleFilm').innerText;
-        var idFilm = document.getElementById('idFilm').innerText.slice(2);
+        let titleFilm = document.getElementById('titleFilm').innerText;
+        let idFilm = document.getElementById('idFilm').innerText.slice(2);
         if (confirm('Вы хоитет удалить фильм ' + titleFilm + '?')) {
             location.href = '/films/remove/' + idFilm;
         }

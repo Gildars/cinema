@@ -2,9 +2,12 @@
 
 namespace App\Cinema\Lib;
 
-use App\Cinema\Controller\FilmsController;
-use Exception;
+use App\Cinema\Exceptions\BadMethodCallException;
 
+/**
+ * Class Bootstrap
+ * @package App\Cinema\Lib
+ */
 class Bootstrap
 {
     protected static $router;
@@ -20,24 +23,26 @@ class Bootstrap
     {
         self::$router = new Router($uri);
 
-        self::$db = new Database(Config::get('db.host'), Config::get('db.user'), Config::get('db.password'), Config::get('db.db_name'));
+        self::$db = Database::getInstance();
 
-        $controller_class = ucfirst(self::$router->getController()) . 'Controller';
+        $controller_class =  'App\Cinema\Controller\\' . ucfirst(self::$router->getController()) . 'Controller';
         $controller_method = strtolower(self::$router->getMethodPrefix() . self::$router->getAction());
 
 
         $layout = self::$router->getRoute();
-        $controller_object = new FilmsController;
+        $controller_object = new $controller_class();
         if (method_exists($controller_object, $controller_method)) {
             $view_path = $controller_object->$controller_method();
-            $view_object = new View($controller_object->getData(), $view_path);
+            $view_object = new View($controller_object->getPageTitle(), $controller_object->getData(), $view_path);
             $content = $view_object->render();
         } else {
-            throw new Exception('Method ' . $controller_method . ' of class ' . $controller_class . ' does not exist.');
+            throw new BadMethodCallException(
+                'Method ' . $controller_method . ' of class ' . $controller_class . ' does not exist.'
+            );
         }
 
         $layout_path = VIEWS_PATH . DS . $layout . '.html';
-        $layout_view_object = new View(compact('content'), $layout_path);
+        $layout_view_object = new View($controller_object->getPageTitle(), compact('content'), $layout_path);
         echo $layout_view_object->render();
     }
 }

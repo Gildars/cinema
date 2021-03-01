@@ -11,14 +11,18 @@
     ],
     "require": {
         "ext-mysqli": "*",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+      "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {
             "App\\Cinema\\": "",
             "App\\Cinema\\Lib\\": "lib",
             "App\\Cinema\\Controller\\": "controllers",
-            "App\\Cinema\\Model\\": "models"
+            "App\\Cinema\\Model\\": "models",
+            "App\\Cinema\\Exceptions\\": "Exceptions",
+            "App\\Cinema\\Services\\": "Services",
+            "App\\Cinema\\Requests\\": "Requests"
         }
     }
 }

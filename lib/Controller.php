@@ -2,6 +2,10 @@
 
 namespace App\Cinema\Lib;
 
+/**
+ * Class Controller
+ * @package App\Cinema\Lib
+ */
 class Controller
 {
     protected $data;
@@ -10,13 +14,22 @@ class Controller
 
     protected $params;
 
-    protected $siteName;
+    protected $pageTitle;
 
-    protected $pageName;
-
+    /**
+     * @return array|mixed
+     */
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPageTitle()
+    {
+        return $this->pageTitle;
     }
 
     public function getModel()
@@ -29,10 +42,13 @@ class Controller
         return $this->params;
     }
 
-    public function __construct($pageName, $data = array())
+    /**
+     * Controller constructor.
+     * @param $pageName
+     * @param array $data
+     */
+    public function __construct($data = [])
     {
-        $this->siteName = Config::get('site_name');
-        $this->pageName = $pageName;
         $this->data = $data;
         $this->params = Bootstrap::getRouter()->getParams();
     }

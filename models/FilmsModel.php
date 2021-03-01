@@ -3,172 +3,254 @@
 namespace App\Cinema\Model;
 
 use App\Cinema\Lib\Model;
+use App\Cinema\Lib\Session;
+use PDO;
 
+/**
+ * Class FilmsModel
+ * @package App\Cinema\Model
+ */
 class FilmsModel extends Model
 {
-    public function validationAddFilm(array $data)
+
+    /**
+     * @return int|false
+     */
+    public function getCountFilms(): int|false
     {
-        if (isset($data['title']) && isset($data['release']) && isset($data['format']) && isset($data['name'])) {
-            if (strlen($data['title']) < 50 && strlen($data['release']) == 4 && strlen($data['format']) < 12) {
-                $data['title'] = $this->clean($data['title']);
-                $data['release'] = $this->clean($data['release']);
-                $data['format'] = $this->clean($data['format']);
-                if ($data['release'] > date('Y')) {
-                    return false;
-                }
-                foreach ($data['name'] as $key => $value) {
-                    if (!strlen($value) > 50) {
-                        return false;
-                    }
-                    $data['name'][$key] = $this->clean($data['name'][$key]);
-                }
-                return $data;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return $this->db->query('SELECT COUNT(`id`) as count FROM films')->fetch(PDO::FETCH_OBJ)->count;
     }
 
-    public function getCountFilms(): int
-    {
-        $count = $this->db->query("
-        SELECT COUNT(`id`) as count
-  FROM films
-        ");
-        return (int)$count[0]['count'];
-    }
 
-    public function getFilmsLimit($limit, $order)
+    /**
+     * @param int $limitOfStart
+     * @param int $amount
+     * @param false $order
+     * @return array|false
+     */
+    public function getFilms(int $limitOfStart, int $amount, $order = false): array|false
     {
-        $limit = $this->clean($limit);
-        $order = $this->clean($order);
         if ($order) {
-            $sql = "
-SELECT `id`, `title`, `release` 
-FROM films 
-ORDER BY title +0, `title`
-LIMIT {$limit},21  
-";
+            $films = $this->db->prepare('
+                SELECT `id`, `title`, `release` 
+                FROM films 
+                ORDER BY `title` + 0 ASC, `title` ASC
+                LIMIT :limitOfStart, :amount
+            ');
         } else {
-            $sql = "
-SELECT `id`, `title`, `release` 
-FROM films 
-LIMIT {$limit},21  
-";
+            $films = $this->db->prepare('
+                SELECT `id`, `title`, `release` 
+                FROM films 
+                LIMIT :limitOfStart, :amount
+            ');
         }
-        return $this->db->query($sql);
+        $films->execute(['limitOfStart' => $limitOfStart, 'amount' => $amount]);
+        return $films->fetchAll();
     }
 
-    public function orderByDesc(): array
+
+    /**
+     * @param array $film
+     * @return bool
+     */
+    public function addFilm(array $film): bool
     {
-        $sql = "SELECT `title` FROM films ORDER BY title DESC";
-        return $this->db->query($sql);
+        $queryAddFilms = $this->db->prepare('
+            INSERT INTO films
+            SET 
+            `title` = :title, 
+            `release` = :YearRelease,
+            `format` = :format
+        ');
+        return $queryAddFilms->execute([
+            'title' => $film['title'],
+            'YearRelease' => $film['release'],
+            'format' => $film['format']
+        ]);
     }
 
-    public function addFilm(array $data)
+    /**
+     * @param string $fullName
+     * @return bool
+     */
+    public function addActor(string $fullName): bool
     {
-        $this->db->getConnection()->begin_transaction();
-        $actorsId = [];
-        $queryAddFilms = $this->db->query("
-        INSERT INTO films
-        SET 
-        `title` = '{$data['title']}', 
-        `release` = {$data['release']},
-        `format` = '{$data['format']}'
-        ");
-        $filmId = $this->db->getConnection()->insert_id;
-        if ($queryAddFilms == false) {
-            $this->db->getConnection()->rollback();
+        $queryAddActor = $this->db->prepare('
+            INSERT INTO actors 
+            SET
+            `name` = :ActorName
+        ');
+        return $queryAddActor->execute(['ActorName' => $fullName]);
+    }
+
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public function addFilmWithActors(array $data): bool
+    {
+        $this->db->beginTransaction();
+        try {
+            $this->addFilm($data);
+
+            $idFilm = $this->db->lastInsertId();
+            $idActors = [];
+
+            foreach ($data['name'] as $fullName) {
+                $this->addActor($fullName);
+                $idActors[] = $this->db->lastInsertId();
+            }
+
+            foreach ($idActors as $id) {
+                $queryAddFilms = $this->db->prepare('
+                    INSERT INTO films_actors 
+                    SET
+                    `id_film` = :idFilm,
+                    `id_actor` = :idActor
+                ');
+                $queryAddFilms->execute(['idFilm' => $idFilm, 'idActor' => $id]);
+            }
+            $this->db->commit();
+            return true;
+        } catch (\PDOException $exception) {
+            $this->db->rollBack();
             return false;
         }
-        $i = 0;
-        foreach ($data['name'] as $name) {
-            $queryAddActors = $this->db->query("
-        INSERT INTO actors 
-        SET
-        `name` = '{$name}'
-        ");
-            array_push($actorsId, $this->db->getConnection()->insert_id);
-            $i++;
-            if ($queryAddActors == false) {
-                $this->db->getConnection()->rollback();
-                return false;
-            }
-        }
-        foreach ($actorsId as $actorId) {
-            $queryAddFilms = $this->db->query("
-        INSERT INTO films_actors 
-        SET
-        `id_film` = '{$filmId}',
-        `id_actor` = '{$actorId}'
-        ");
-            if ($queryAddFilms == false) {
-                $this->db->getConnection()->rollback();
-                return false;
-            }
-        }
-        if ($this->db->getConnection()->commit() == true) {
-            return $filmId;
+    }
+
+
+    /**
+     * @param int $idFilm
+     * @return array|false
+     */
+    public function getFilmInfoById(int $idFilm): array|false
+    {
+        $result = $this->db->prepare('
+            SELECT films.`id`, `title`, films.`release`, films.`format`,`name`, films_actors.`id_film`, films_actors.`id_actor`
+            FROM films
+            LEFT JOIN films_actors ON films_actors.`id_film` = films.`id`
+            LEFT JOIN actors ON films_actors.`id_actor` = actors.`id`
+            WHERE films.id = :id
+        ');
+        $result->execute(['id' => $idFilm]);
+        return $result->fetchAll();
+    }
+
+    /**
+     * @param int $idFilm
+     * @return bool
+     */
+    public function removeFilmById(int $idFilm): bool
+    {
+        $query = $this->db->prepare('
+            DELETE
+            FROM films
+            WHERE films.id = :idFilm
+        ');
+        return $query->execute(['idFilm' => $idFilm]);
+    }
+
+
+    /**
+     * @param string $searchText
+     * @param int $limitOfStart
+     * @param int $amount
+     * @param bool $order
+     * @return false|array
+     */
+    public function searchFilmsByTitle(string $searchText, int $limitOfStart, int $amount, $order = false): false|array
+    {
+        if ($order) {
+            $result = $this->db->prepare('
+                SELECT (SELECT COUNT(`id`) as count
+                        FROM films
+                        WHERE `title` LIKE :searchStr
+                       ) as count,
+                       `id`,
+                       `title`,
+                       `release`
+                FROM films
+                WHERE `title` LIKE :searchText
+                ORDER BY `title` + 0 ASC, `title` ASC
+                LIMIT :limitOfStart, :amount
+            ');
         } else {
-            return false;
+            $result = $this->db->prepare('
+                SELECT (SELECT COUNT(`id`) as count
+                        FROM films
+                        WHERE `title` LIKE :searchStr
+                       ) as count,
+                       `id`,
+                       `title`,
+                       `release`
+                FROM films
+                WHERE `title` LIKE :searchText
+                LIMIT :limitOfStart, :amount
+            ');
         }
+        $result->execute([
+            'searchText' => '%' . $searchText . '%',
+            'searchStr' => '%' . $searchText . '%',
+            'limitOfStart' => $limitOfStart,
+            'amount' => $amount
+        ]);
+        return $result->fetchAll();
     }
 
-    public function getFilmInfoById(int $id)
+    /**
+     * @param string $searchText
+     * @param int $limitOfStart
+     * @param int $amount
+     * @param bool $order
+     * @return false|array
+     */
+    public function searchFilmsByActor(string $searchText, int $limitOfStart, int $amount, $order = false): false|array
     {
-        $id = $this->clean($id);
-        $result = $this->db->query("
-SELECT films.`id`, `title`, films.`release`, films.`format`,`name`, films_actors.`id_film`, films_actors.`id_actor`
-FROM films
-LEFT JOIN films_actors ON films_actors.`id_film` = films.`id`
-LEFT JOIN actors ON films_actors.`id_actor` = actors.`id`
-WHERE films.id = {$id}
-");
-        return ($result) ? $result : false;
-    }
-
-    public function removeFilmById(int $id): bool
-    {
-        $id = $this->clean($id);
-        $result = $this->db->query("
-DELETE
-FROM films
-WHERE films.id = {$id}
-");
-        return ($this->db->getConnection()->affected_rows) ? true : false;
-    }
-
-    public function searchFilmsByTitle(string $string, int $limit = 0)
-    {
-        $string = $this->clean($string);
-        $limit = $this->clean($limit);
-
-        $result = null;
-        $result = $this->db->query("
-SELECT `id`, `title`, `release` 
-FROM films 
-WHERE `title` ORDER BY '%{$string}%'
-LIMIT 0,21
-");
-        return ($result) ? $result : false;
-    }
-
-    public function searchFilmsByActor(string $string, int $limit = 0, string $order = null)
-    {
-        $string = $this->clean($string);
-        $result = null;
-        if ($order == null) {
-            $result = $this->db->query("
-SELECT f.id, fa.`id_actor`, fa.`id_film`, f.`title`, f.`release`, a.`name`
-FROM actors AS a
-INNER JOIN films_actors AS fa ON fa.id_actor = a.id
-INNER JOIN films AS f ON f.id = fa.id_film
-WHERE `name` LIKE '%{$string}%' 
-LIMIT 0,21
-");
+        if ($order) {
+            $result = $this->db->prepare('
+                SELECT (SELECT COUNT(`id`) as count
+                        FROM actors
+                        WHERE `name` LIKE :searchText
+                       ) as count,
+                       f.id,
+                       fa.`id_actor`,
+                       fa.`id_film`,
+                       f.`title`,
+                       f.`release`,
+                       a.`name`
+                FROM actors AS a
+                         INNER JOIN films_actors AS fa ON fa.id_actor = a.id
+                         INNER JOIN films AS f ON f.id = fa.id_film
+                WHERE `name` LIKE :searchText
+                ORDER BY `title` + 0 ASC, `title` ASC
+                LIMIT :limitOfStart, :amount
+            ');
+        } else {
+            $result = $this->db->prepare('
+                SELECT (SELECT COUNT(`id`) as count
+                        FROM actors
+                        WHERE `name` LIKE :searchStr
+                       ) as count,
+                       f.id,
+                       fa.`id_actor`,
+                       fa.`id_film`,
+                       f.`title`,
+                       f.`release`,
+                       a.`name`
+                FROM actors AS a
+                         INNER JOIN films_actors AS fa ON fa.id_actor = a.id
+                         INNER JOIN films AS f ON f.id = fa.id_film
+                WHERE `name` LIKE :searchText
+                LIMIT :limitOfStart, :amount
+            ');
         }
-        return ($result) ? $result : false;
+        $result->execute([
+            'searchText' => '%' . $searchText . '%',
+            'searchStr' => '%' . $searchText . '%',
+            'limitOfStart' => $limitOfStart,
+            'amount' => $amount
+        ]);
+        return $result->fetchAll();
     }
 }

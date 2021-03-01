@@ -1,9 +1,10 @@
-<h6><?php if(isset($data['films'])) echo 'Вот что нам удалось найти';?></h6>
+<a href="/films/search?page=<?=$data['currentPage']?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?>&order=ASC">Отсортирвоать в алфавитном порядке</a> <br>
+<h6><?php if(isset($data['films'])) echo 'Вот что нам удалось найти:';?></h6>
 <?php
     if(isset($data['films'])){
     foreach($data['films'] as $film){
     ?>
-<div class="text-xl-left"></div><a href="/films/view/<?=$film['id']?>"><?=$film['title']?> (<?=$film['release']?>)</a>
+<div class="text-xl-left"></div><a href="/films/view?id=<?=$film['id']?>"><?=$film['title']?> (<?=$film['release']?>)</a>
 <?php
     }
     }else { echo 'Фильмов не найдено.'; }
@@ -15,10 +16,16 @@
         if ($button->isActive) : ?>
         <li class="page-item active">
             <a class="page-link"
-               href="/films/search/<?=$button->page?>?t=<?=$_GET['t']?>&s=<?=$_GET['s']?>"><?=$button->text?></a>
+               href="/films/search?page=<?=$button->page?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
+                <?=$button->text?>
+            </a>
         </li>
         <?php else : ?>
-        <li class="page-item"><a class="page-link" href="/films/search/<?=$button->page?>"><?=$button->text?></a></li>
+        <li class="page-item"><a class="page-link"
+                                 href="/films/search?page=<?=$button->page?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
+            <?=$button->text?>
+        </a>
+        </li>
         <?php endif;
 endforeach; ?>
     </ul>

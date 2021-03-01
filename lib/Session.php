@@ -2,6 +2,10 @@
 
 namespace App\Cinema\Lib;
 
+/**
+ * Class Session
+ * @package App\Cinema\Lib
+ */
 class Session
 {
     protected static $flash_massage;

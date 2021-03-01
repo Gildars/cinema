@@ -2,27 +2,28 @@
 
 namespace App\Cinema\Lib;
 
+use PDO;
+
+/**
+ * Class Model
+ * @package App\Cinema\Lib
+ */
 class Model
 {
-    protected $db;
+    protected ?PDO $db;
 
     public function __construct()
     {
         $this->db = Bootstrap::$db;
     }
 
-    public function clean($value = "")
-    {
-        $value = XSSCleaner::xss_clean($value);
-        $value = trim($value);
-        $value = stripslashes($value);
-        $value = strip_tags($value);
-        $value = htmlspecialchars($value);
-        $value = $this->db->getConnection()->real_escape_string($value);
-        return $value;
-    }
-
-    public function check_length($value, $min, $max)
+    /**
+     * @param $value
+     * @param $min
+     * @param $max
+     * @return bool
+     */
+    public function checkLength($value, $min, $max): bool
     {
         $result = (mb_strlen($value) < $min || mb_strlen($value) > $max);
         return !$result;

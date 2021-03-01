@@ -2,49 +2,38 @@
 
 namespace App\Cinema\Lib;
 
-use Exception;
-use mysqli;
+use PDO;
 
-class Database
+/**
+ * Class Database
+ * @package App\Cinema\Lib
+ */
+class Database extends PDO
 {
-    protected $connection;
+    private static $instance = null;
 
-    public function __construct($host, $user, $password, $db_name)
+    protected function __construct()
     {
-        $this->connection = new mysqli($host, $user, $password, $db_name);
-        $this->connection->set_charset("utf8");
-        if (mysqli_connect_error()) {
-            throw new Exception('Could not connect to DB');
-        }
-    }
 
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    public function query($sql)
-    {
-        if (!$this->connection) {
-            return false;
-        }
-        $result = $this->connection->query($sql);
-        if (mysqli_error($this->connection)) {
-            throw new Exception(mysqli_error($this->connection));
-        }
-        if (is_bool($result)) {
-            return $result;
-        }
-        $data = array();
-        while ($row = mysqli_fetch_assoc($result)) {
-            $data[] = $row;
-        }
-        return $data;
+        self::$instance =  parent::__construct(
+            'mysql:host=' . Config::get('db.host') . ';dbname=' . Config::get('db.db_name'),
+            Config::get('db.user'),
+            Config::get('db.password'),
+            [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'", PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT]
+        );
     }
 
 
-    public function escape($str)
+    public static function getInstance()
     {
-        return mysqli_escape_string($this->connection, $str);
+        if (self::$instance == null) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
     }
+    protected function __clone()
+    {
+    }
+
 }

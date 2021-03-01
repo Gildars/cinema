@@ -8,192 +8,122 @@ use App\Cinema\Lib\Pagination;
 use App\Cinema\Lib\Router;
 use App\Cinema\Lib\Session;
 use App\Cinema\Model\FilmsModel;
+use App\Cinema\Requests\FilmRequest;
+use App\Cinema\Services\File\FileTxtService;
 
+/**
+ * Class FilmsController
+ * @package App\Cinema\Controller
+ */
 class FilmsController extends Controller
 {
-    public function __construct($data = array())
+    /**
+     * @var \App\Cinema\Model\FilmsModel
+     */
+    private FilmsModel $filmsModel;
+
+    /**
+     * Controller constructor.
+     * @param array $data
+     */
+    public function __construct($data = [])
     {
         parent::__construct($data);
-        $this->model = new FilmsModel();
+        $this->filmsModel = new FilmsModel();
     }
 
     public function index()
     {
-        $page = !empty($this->params[0]) ? $this->params[0] : 1;
-        $order = (isset($_GET['order'])) ? true : false;
-        $this->data['currentPage'] = $page;
-        $filmsCount = $this->model->getCountFilms();
-        if (empty($this->params[0])) { // Если не передан параметр
-            $films = $this->model->getFilmsLimit(0, $order);
-            $this->data['button'] = new Pagination(array(
-                'itemsCount' => $filmsCount,
-                'itemsPerPage' => 21,
-                'currentPage' => $filmsCount
-            ));
-            $this->data['films'] = $films;
-        } elseif (is_numeric($this->params[0])) { // Если переданный параметр является нормером страницы
-            if ($this->params[0] == 1) {
-                $limit = 0;
-                $this->data['films'] = $this->model->getFilmsLimit($limit, $order);
-            } else {
-                $limit = ($this->params[0] * 21) - 21;
-                $this->data['films'] = $this->model->getFilmsLimit($limit, $order);
-            }
-        }
-        $this->data['button'] = new Pagination(array(
+        $this->pageTitle = 'Главная';
+        $pageNumber = !empty($_GET['page']) ? (int) $_GET['page'] : 1;
+        $order = !empty($_GET['order']);
+        $filmsCount = $this->filmsModel->getCountFilms();
+        $recordsPerPage = 21;
+        $limitOfStart = ($pageNumber * $recordsPerPage) - $recordsPerPage;
+
+        $this->data['currentPage'] = $pageNumber;
+        $this->data['films'] = $this->filmsModel->getFilms($limitOfStart, $recordsPerPage, $order) ?? [];
+        $this->data['button'] = new Pagination([
             'itemsCount' => $filmsCount,
             'itemsPerPage' => 21,
-            'currentPage' => $page
-        ));
+            'currentPage' => $pageNumber
+        ]);
     }
 
     public function search()
     {
-        $films = null;
-        if (!isset($_GET['s']) || empty($_GET['s']) || !isset($_GET['t']) || empty($_GET['t'])) {
-            Session::setFlash('Некоректный поисковый запрос');
-        } else {
-            $page = isset($params[0]) ? (int)($this->params[0]) : 1;
-            $searchString = $_GET['s'];
-            $type = (isset($_GET['t']) && $_GET['t'] == 'actor' || $_GET['t'] === 'film') ? $_GET['t'] : false;
+        $this->pageTitle = 'Поиск';
+        $pageNumber = !empty($_GET['page']) ? $_GET['page'] : 1;
+        $recordsPerPage = 21;
+        $filmRequest = new FilmRequest($_GET);
+        if ($filmRequest->search()) {
+            $order = !empty($_GET['order']);
+            $searchString = $_GET['what'];
+            $searchBy = $_GET['by'];
 
-            $this->data['currentPage'] = $page;
-            if (empty($this->params[0])) { // Если не передан параметр
-                if ($type == 'actor') {
-                    $films = $this->model->searchFilmsByActor($searchString, 0);
-                } elseif ($type == 'film') {
-                    $films = $this->model->searchFilmsByTitle($searchString, 0);
-                }
-            } elseif (!empty($this->params[0]) && is_numeric($this->params[0])) { // Если переданный параметр является цифрой
-                if ($this->params[0] == 1) {
-                    $limit = 0;
-                    $films = $this->model->searchFilmsByString($searchString, $limit);
-                } else {
-                    $limit = ($this->params[0] * 21) - 21;
-                    $this->data['films'] = $this->model->searchFilmsByString($searchString, $limit);
-                }
-            }
+            $limitOfStart = ($pageNumber * $recordsPerPage) - $recordsPerPage;
+
+            $films = match ($searchBy) {
+                'actor' => $this->filmsModel->searchFilmsByActor($searchString, $limitOfStart, $recordsPerPage, $order),
+                'film' => $this->filmsModel->searchFilmsByTitle($searchString, $limitOfStart, $recordsPerPage, $order)
+            };
         }
 
-        $this->data['films'] = ($films !== false) ? $films : null;
-        $this->data['button'] = new Pagination(array(
-            'itemsCount' => count($films),
-            'itemsPerPage' => 21,
-            'currentPage' => isset($page) ? $page : 0
-        ));
+        $this->data['currentPage'] = $pageNumber;
+        $this->data['films'] = $films ?? [];
+        $this->data['button'] = new Pagination([
+            'itemsCount' => $films[0]['count'] ?? 0,
+            'itemsPerPage' => $recordsPerPage,
+            'currentPage' => $pageNumber
+        ]);
     }
 
     public function add()
     {
+        $this->pageTitle = 'Добавить фильм';
+
         if (!empty($_POST)) {
-            $response = [];
-            $data = $this->model->validationAddFilm($_POST);
-            if ($data !== false) {
-                $film = $this->model->addFilm($data);
-                if ($film == true) {
-                    Router::redirect("/films/view/$film/");
-                }
-            } else {
-                Session::setFlash('Заполните все поля для ввода данных.');
+            $filmRequest = new FilmRequest($_POST);
+            if ($filmRequest->addFilmWithActors() && $this->filmsModel->addFilmWithActors($_POST)) {
+                Session::setFlash('Фильм успешно добавлен.');
             }
         }
     }
 
     public function view()
     {
-        $params = Bootstrap::getRouter()->getParams();
-        if ($params[0]) {
-            $film = $this->model->getFilmInfoById($params[0]);
-            if ($film) {
-                $this->data['film'] = $film;
-            } else {
-                Session::setFlash('Фильм не найден.');
-            }
-        } else {
+        if (empty($_GET['id'])) {
             Router::redirect('/');
+        }
+
+        if ($film = $this->filmsModel->getFilmInfoById((int)$_GET['id'])) {
+            $this->data['film'] = $film;
+            $this->pageTitle = $film[0]['title'];
+        } else {
+            $this->pageTitle = 'Фильм не найден.';
+            Session::setFlash('Фильм не найден.');
         }
     }
 
     public function import()
     {
+        $this->pageTitle = 'Импорт фильмов';
+
         if (isset($_FILES['file'])) {
-            $allowedExts = array("txt");
-            $temp = explode(".", $_FILES["file"]["name"]);
-            $extension = end($temp);
-            $films = null;
-            if ((($_FILES["file"]["type"] == "text/plain")
-                && ($_FILES["file"]["size"] < 170000)
-                && in_array($extension, $allowedExts))) {
-                if ($_FILES["file"]["error"] > 0) {
-                    Session::setFlash("Ошибка загрузки файла. Code: " . $_FILES["file"]["error"]);
-                } else {
-                    $file = file_get_contents($_FILES['file']['tmp_name']);
-                    $data = [];
-                    $film = [
-                        'title' => '',
-                        'release' => '',
-                        'format' => '',
-                        'name' => []
-                    ];
-                    $matchesLines = [];
-                    if (preg_match_all("/^(Title|Release\sYear|Format|Stars):\h*(.*)/m", $file, $matchesLines)) {
-                        $fieldsNames = $matchesLines[1];
-                        $fieldsValues = $matchesLines[2];
-                        $lastIndex = 0;
-                        foreach ($fieldsNames as $index1 => $value1) {
-                            foreach ($fieldsValues as $index2 => $value2) {
-                                if ($index2 == $lastIndex) {
-                                    continue;
-                                }
-                                if (!empty($film['title']) && !empty($film['release']) &&
-                                    !empty($film['format']) && !empty($film['name'])) {
-                                    array_push($data, $film);
-                                    $this->model->addFilm($film);
-                                    $film = [
-                                        'title' => '',
-                                        'release' => '',
-                                        'format' => '',
-                                        'name' => []
-                                    ];
-                                }
-                                if ($index1 === $index2) { // заполняем масив film
-                                    $value1 = strtolower($value1);
-                                    if ($value1 == 'release year') {
-                                        $film['release'] = $value2;
-                                    } elseif ($value1 == 'stars') {
-                                        $firstNameAndSurname = null;
-                                        preg_match_all(
-                                            "/[A-zА-яё\]+\s[a-zа-яё]+(?=[,]*)/",
-                                            $value2,
-                                            $firstNameAndSurname
-                                        );
-                                        foreach ($firstNameAndSurname[0] as $name) {
-                                            $name = trim($name);
-                                            array_push($film['name'], $name);
-                                        }
-                                    } else {
-                                        $film[$value1] = $value2;
-                                    }
-                                    $lastIndex = $index2;
-                                    break;
-                                }
-                            }
-                        }
-                        Session::setFlash('Фильмы успешно импортированы');
-                    }
-                }
-            } else {
-                Session::setFlash('Ошибка загрузки файла. Файл должен быть формата .txt');
+            $fileTxtService = new FileTxtService($_FILES['file'], 170000);
+            if ($fileTxtService->isValidFile()) {
+                $fileTxtService->parseFilms();
             }
         }
     }
 
     public function remove()
     {
-        $idFilm = $this->params[0];
+        $this->pageTitle = 'Удалить фильм';
+        $idFilm = (int) $_GET['id'];
         if ($idFilm) {
-            if ($this->model->removeFilmById($idFilm)) {
-                Session::setFlash('Фильм удален');
+            if ($this->filmsModel->removeFilmById($idFilm)) {
+                Session::setFlash('Фильм удален.');
             } else {
                 Session::setFlash('Фильм не найден');
             }
