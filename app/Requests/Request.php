@@ -19,4 +19,12 @@ abstract class Request
         $this->params = $getParams;
         $this->antiXSS = new AntiXSS();
     }
+
+    /**
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return $this->params;
+    }
 }
