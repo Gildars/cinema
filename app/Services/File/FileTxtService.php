@@ -4,6 +4,7 @@ namespace App\Cinema\Services\File;
 
 use App\Cinema\Core\Session;
 use App\Cinema\Models\FilmsModel;
+use voku\helper\AntiXSS;
 
 /**
  * Class FileTxtService
@@ -34,10 +35,11 @@ class FileTxtService extends FileServiceAbstract
             'name' => []
         ];
         $matchesLines = [];
+        $antiXSS = new AntiXSS();
 
         if (preg_match_all('/^(Title|Release\sYear|Format|Stars):\h*(.*)/m', $txtFile, $matchesLines)) {
-            $fieldsNames = $matchesLines[1];
-            $fieldsValues = $matchesLines[2];
+            $fieldsNames = $antiXSS->xss_clean($matchesLines[1]);
+            $fieldsValues =  $antiXSS->xss_clean($matchesLines[2]);
             $lastIndex = 0;
 
             foreach ($fieldsNames as $index1 => $value1) {

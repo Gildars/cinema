@@ -83,7 +83,7 @@ class FilmsController extends Controller
 
         if (!empty($_POST)) {
             $filmRequest = new FilmRequest($_POST);
-            if ($filmRequest->addFilmWithActors() && $this->filmsModel->addFilmWithActors($_POST)) {
+            if ($filmRequest->addFilmWithActors() && $this->filmsModel->addFilmWithActors($filmRequest->getParams())) {
                 Session::setFlash('Фильм успешно добавлен.');
             }
         }
