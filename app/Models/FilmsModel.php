@@ -33,7 +33,7 @@ class FilmsModel extends Model
             $films = $this->db->prepare('
                 SELECT `id`, `title`, `release` 
                 FROM films 
-                ORDER BY `title` + 0 ASC, `title` ASC
+                ORDER BY `title` + 0 ASC, `title` COLLATE  utf8_unicode_ci
                 LIMIT :limitOfStart, :amount
             ');
         } else {
@@ -171,7 +171,7 @@ class FilmsModel extends Model
                        `release`
                 FROM films
                 WHERE `title` LIKE :searchText
-                ORDER BY `title` + 0 ASC, `title` ASC
+                ORDER BY `title` + 0 ASC, `title` ASC  COLLATE  utf8_unicode_ci
                 LIMIT :limitOfStart, :amount
             ');
         } else {
@@ -222,7 +222,7 @@ class FilmsModel extends Model
                          INNER JOIN films_actors AS fa ON fa.id_actor = a.id
                          INNER JOIN films AS f ON f.id = fa.id_film
                 WHERE `name` LIKE :searchText
-                ORDER BY `title` + 0 ASC, `title` ASC
+                ORDER BY `title` + 0 ASC, `title` ASC  COLLATE  utf8_unicode_ci
                 LIMIT :limitOfStart, :amount
             ');
         } else {
