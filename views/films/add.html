@@ -32,14 +32,14 @@
         <button type="submit" class="btn btn-success col-md-12 btn-lg btn-block">Сохранить</button>
 </form>
 
-<script type="text/javascript">
+<script>
     function removeField(element) {
-        var field = element.parentElement.parentElement;
+        let field = element.parentElement.parentElement;
         field.remove();
     }
 
     function addField(element) {
-        var field = "<div class=\"form-row\">\n" +
+        let field = "<div class=\"form-row\">\n" +
             "        <div class=\"form-group col-md-5\">\n" +
             "            <label for=\"name\">Имя актера</label>\n" +
             "            <input type=\"text\" class=\"form-control\" name=\"name[]\" id=\"name\">\n" +
@@ -49,6 +49,6 @@
             "            <button type=\"button\" class=\"btn btn-primary col-md-12\" id=\"remove\" onclick=\"return removeField(this);\">-</button>\n" +
             "        </div>\n" +
             "    </div>";
-        element.insertAdjacentHTML("beforeBegin", field);
+        element.insertAdjacentHTML('beforeBegin', field);
     }
 </script>

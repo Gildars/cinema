@@ -1,10 +1,16 @@
 <?php
 
+namespace App\Cinema\Core;
+
+/**
+ * Class Pagination
+ * @package App\Cinema\Lib
+ */
 class Pagination
 {
-    public $buttons = array();
+    public array $buttons = [];
 
-    public function __construct(Array $options = array('itemsCount' => 257, 'itemsPerPage' => 5, 'currentPage' => 1))
+    public function __construct(array $options = ['itemsCount' => 257, 'itemsPerPage' => 5, 'currentPage' => 1])
     {
         extract($options);
 
@@ -12,10 +18,9 @@ class Pagination
         if (!$currentPage) {
             return;
         }
-
         /** @var int $pagesCount
-         *  @var int $itemsCount
-         *  @var int $itemsPerPage
+         * @var int $itemsCount
+         * @var int $itemsPerPage
          */
         $pagesCount = ceil($itemsCount / $itemsPerPage);
 

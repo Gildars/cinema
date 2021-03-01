@@ -1,14 +1,27 @@
 <?php
 
-class Session {
+namespace App\Cinema\Core;
+
+/**
+ * Class Session
+ * @package App\Cinema\Lib
+ */
+class Session
+{
     protected static $flash_massage;
 
+    /**
+     * @param $message
+     */
     public static function setFlash($message)
     {
         self::$flash_massage = $message;
     }
 
-    public static function hasFlash()
+    /**
+     * @return bool
+     */
+    public static function hasFlash(): bool
     {
         return !is_null(self::$flash_massage);
     }
@@ -19,25 +32,39 @@ class Session {
         self::$flash_massage = null;
     }
 
-    public function get($key) {
+    /**
+     * @param $key
+     * @return mixed|null
+     */
+    public function get($key): mixed
+    {
         if (isset($_SESSION[$key])) {
             return $_SESSION[$key];
         }
         return null;
-
     }
 
-    public static function set($key, $value) {
+    /**
+     * @param $key
+     * @param $value
+     */
+    public static function set($key, $value)
+    {
         $_SESSION[$key] = $value;
     }
 
-    public static function delete($key) {
+    /**
+     * @param $key
+     */
+    public static function delete($key)
+    {
         if (isset($_SESSION[$key])) {
             unset($_SESSION[$key]);
         }
     }
 
-    public function destroy(){
+    public function destroy()
+    {
         session_destroy();
     }
 }
