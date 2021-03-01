@@ -6,7 +6,7 @@ use App\Cinema\Exceptions\IncorrectFileTypeException;
 use App\Cinema\Exceptions\InvalidArgumentException;
 use App\Cinema\Exceptions\LargeFileSizeException;
 use App\Cinema\Exceptions\UploadFileException;
-use App\Cinema\Lib\Session;
+use App\Cinema\Core\Session;
 
 /**
  * Class FileServiceAbstract

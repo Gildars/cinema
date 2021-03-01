@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 
 use App\Cinema\Exceptions\BadMethodCallException;
 
@@ -19,13 +19,18 @@ class Bootstrap
         return self::$router;
     }
 
+    /**
+     * @param $uri
+     * @throws \App\Cinema\Exceptions\BadMethodCallException
+     * @throws \App\Cinema\Exceptions\NotFoundTemplateException
+     */
     public static function run($uri)
     {
         self::$router = new Router($uri);
 
         self::$db = Database::getInstance();
 
-        $controller_class =  'App\Cinema\Controller\\' . ucfirst(self::$router->getController()) . 'Controller';
+        $controller_class =  'App\Cinema\Controllers\\' . ucfirst(self::$router->getController()) . 'Controller';
         $controller_method = strtolower(self::$router->getMethodPrefix() . self::$router->getAction());
 
 

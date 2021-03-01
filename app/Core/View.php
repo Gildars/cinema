@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 use App\Cinema\Exceptions\NotFoundTemplateException;
 
 /**
@@ -9,13 +9,13 @@ use App\Cinema\Exceptions\NotFoundTemplateException;
  */
 class View
 {
-    protected $data;
+    protected array $data;
 
-    protected $path;
+    protected string|null|false $path;
 
-    protected $siteName;
+    protected mixed $siteName;
 
-    protected $pageTitle;
+    protected string $pageTitle;
 
     /**
      * View constructor.
@@ -41,7 +41,7 @@ class View
     /**
      * @return false|string
      */
-    protected static function getDefaultViewPath()
+    protected static function getDefaultViewPath(): bool|string
     {
         $router = Bootstrap::getRouter();
         if (!$router) {

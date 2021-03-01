@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 
 use PDO;
 

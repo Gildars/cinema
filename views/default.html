@@ -48,9 +48,9 @@
                        aria-controls="v-pills-messages" aria-selected="false">Ипортировать фильмы</a>
                 </div>
                 <div class="col-md-10">
-                    <?php if( App\Cinema\Lib\Session::hasFlash() ) {?>
+                    <?php if( App\Cinema\Core\Session::hasFlash() ) {?>
                     <div class="alert alert-info" role="alert">
-                        <?php App\Cinema\Lib\Session::flash(); ?>
+                        <?php App\Cinema\Core\Session::flash(); ?>
                     </div>
                     <?php } ?>
                     <?=$data['content']?>
@@ -67,7 +67,6 @@
             $(this).tab('show')
         });
     </script>
-    <script src="/js/jquery.pjax.js"></script>
     <script src="/js/bootstrap.min.js"></script>
 </body>
 </html>

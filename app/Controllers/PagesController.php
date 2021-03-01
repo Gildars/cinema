@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Cinema\Controller;
+namespace App\Cinema\Controllers;
 
-use App\Cinema\Lib\Controller;
+use App\Cinema\Core\Controller;
 
 /**
  * Class PagesController
@@ -12,7 +12,6 @@ class PagesController extends Controller
 {
     /**
      * Controller constructor.
-     * @param $pageName
      * @param array $data
      */
     public function __construct($data = [])

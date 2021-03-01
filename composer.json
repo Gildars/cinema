@@ -16,13 +16,13 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\Cinema\\": "",
-            "App\\Cinema\\Lib\\": "lib",
-            "App\\Cinema\\Controller\\": "controllers",
-            "App\\Cinema\\Model\\": "models",
-            "App\\Cinema\\Exceptions\\": "Exceptions",
-            "App\\Cinema\\Services\\": "Services",
-            "App\\Cinema\\Requests\\": "Requests"
+            "App\\Cinema\\": "/app",
+            "App\\Cinema\\Core\\": "app/Core",
+            "App\\Cinema\\Controllers\\": "app/Controllers",
+            "App\\Cinema\\Models\\": "app/Models",
+            "App\\Cinema\\Exceptions\\": "app/Exceptions",
+            "App\\Cinema\\Services\\": "app/Services",
+            "App\\Cinema\\Requests\\": "app/Requests"
         }
     }
 }

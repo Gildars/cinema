@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 
 use PDO;
 
@@ -24,6 +24,9 @@ class Database extends PDO
     }
 
 
+    /**
+     * @return \App\Cinema\Core\Database|\PDO|null
+     */
     public static function getInstance()
     {
         if (self::$instance == null) {

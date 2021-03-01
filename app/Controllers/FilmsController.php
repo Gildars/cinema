@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Cinema\Controller;
+namespace App\Cinema\Controllers;
 
-use App\Cinema\Lib\Bootstrap;
-use App\Cinema\Lib\Controller;
-use App\Cinema\Lib\Pagination;
-use App\Cinema\Lib\Router;
-use App\Cinema\Lib\Session;
-use App\Cinema\Model\FilmsModel;
+use App\Cinema\Core\Controller;
+use App\Cinema\Core\Pagination;
+use App\Cinema\Core\Router;
+use App\Cinema\Core\Session;
+use App\Cinema\Models\FilmsModel;
 use App\Cinema\Requests\FilmRequest;
 use App\Cinema\Services\File\FileTxtService;
 
@@ -18,7 +17,7 @@ use App\Cinema\Services\File\FileTxtService;
 class FilmsController extends Controller
 {
     /**
-     * @var \App\Cinema\Model\FilmsModel
+     * @var \App\Cinema\Models\FilmsModel
      */
     private FilmsModel $filmsModel;
 
@@ -120,7 +119,7 @@ class FilmsController extends Controller
     public function remove()
     {
         $this->pageTitle = 'Удалить фильм';
-        $idFilm = (int) $_GET['id'];
+        $idFilm = $_GET['id'] ?? false;
         if ($idFilm) {
             if ($this->filmsModel->removeFilmById($idFilm)) {
                 Session::setFlash('Фильм удален.');

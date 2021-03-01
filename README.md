@@ -10,43 +10,47 @@
 7. Import movies from a text file (`/import/sample_movies.txt`).
 <h1> File structure </h1>
 
-		C:.
-		├───config 		- configuration files
-		├───controllers 	- contains controllers
-		├───import 		- contains a text file for importing data into a database
-		├───lib 		- libraries for the normal functioning of the site
-		├───models 		- contains models for working with the database 
-		├───schema 		- schema database
-		├───views 		- pages with markup site
-		│   ├───films
-		│   └───pages
-		└───webroot 		- public resources for the user
-		    ├───css
-		    ├───fonts
-		    ├───img
-		    └───js
+    cinema:.
+    ├───app
+    │   ├───Controllers - contains controllers
+    │   ├───Core - core libraries for the normal functioning of the site
+    │   ├───Exceptions - custom application exceptions 
+    │   ├───Models - contains models for working with the database 
+    │   ├───Requests - contains validation of request parameters
+    │   └───Services - сontains business logic 
+    │       └───File
+    ├───config - configuration files
+    ├───import - contains a text file for importing data into a database
+    ├───schema - schema database
+    ├───views - pages with markup site
+    │   ├───films
+    │   └───pages
+    └───webroot - public resources for the user
+        ├───css
+        ├───img
+        └───js
+
 		  
 <h1>More about architecture</h1>
 
 The application is written according to the MVC methodology.
 * `index.php` -  is the entry point to the application.
-* `/lib/config.class.php` - The class is responsible for saving the site settings, such as the parameters of the connection with the database. 
-* `/lib/app.class.php` - This is the main class. Creates all the necessary objects for the application.
-* `/lib/pagination.class.php` - This class is responsible for paginated browsing.
-* `/lib/init.php` - Class Autoloader.
-* `/lib/model.class.php` - The base class of the model for working with the database.
-* `/lib/router.class.php` - This class parses the url string into parts.
-* `/lib/session.class.php` - Class for working with sessions and messages for users.
-* `/lib/view.class.php` - Class displays html content.
-* `/lib/db.class.php` - This is a class for working with DB.
+* `/app/Core/Config.php` - The class is responsible for saving the site settings, such as the parameters of the connection with the database. 
+* `/app/Core/Bootstrap.php` - This is the main class. Creates all the necessary objects for the application.
+* `/app/Core/Pagination.php` - This class is responsible for paginated browsing.
+* `/app/Core/Models.php` - The base class of the model for working with the database.
+* `/app/Core/Router.php` - This class parses the url string into parts.
+* `/app/Core/Session.php` - Class for working with sessions and messages for users.
+* `/app/Core/View.php` - Class displays html content.
+* `/app/Core/Database.php` - This is a class for working with DB.
 
 <h1>How to install?</h1>
 <h4>Environment requirements</h4>
 
-* PHP 7.0 or higher
-* extension mysqli
+* PHP 8.0 or higher
+* extension pdo
 * MySQL 5.7.21 
-* Apach or php local server
+* Apache or php local server
 
 <h4>Installation</h4>
 
@@ -77,8 +81,10 @@ The application is written according to the MVC methodology.
 <br>
 `Config::set('salt', '23fd45g2f839');` - salt
 <br>
-
-4. Is ready.
+4. Run command `php composer install`
+5. Switch to directory `/webroot`
+6. Run command php -S localhost:8000
+7. Is ready.
 
 
 

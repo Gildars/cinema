@@ -1,18 +1,13 @@
 <?php
 
-use App\Cinema\Lib\Config;
+use App\Cinema\Core\Config;
 
 Config::set('site_name', 'Cinema');
 
-//Список языков использумых в преокте
-Config::set('languages', array('ru', 'ua')); // доступ к списку языков осуществляется по ключу languages
-
-//роуты
-Config::set('routes', array(
+Config::set('routes', [
     'default' => '',
     'admin' => 'admin_',
-));
-//название контроллеров по умолчанию
+]);
 
 Config::set('default_route', 'default');
 Config::set('default_controller', 'films');

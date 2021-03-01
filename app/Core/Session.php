@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 
 /**
  * Class Session
@@ -10,12 +10,18 @@ class Session
 {
     protected static $flash_massage;
 
+    /**
+     * @param $message
+     */
     public static function setFlash($message)
     {
         self::$flash_massage = $message;
     }
 
-    public static function hasFlash()
+    /**
+     * @return bool
+     */
+    public static function hasFlash(): bool
     {
         return !is_null(self::$flash_massage);
     }
@@ -26,7 +32,11 @@ class Session
         self::$flash_massage = null;
     }
 
-    public function get($key)
+    /**
+     * @param $key
+     * @return mixed|null
+     */
+    public function get($key): mixed
     {
         if (isset($_SESSION[$key])) {
             return $_SESSION[$key];
@@ -34,11 +44,18 @@ class Session
         return null;
     }
 
+    /**
+     * @param $key
+     * @param $value
+     */
     public static function set($key, $value)
     {
         $_SESSION[$key] = $value;
     }
 
+    /**
+     * @param $key
+     */
     public static function delete($key)
     {
         if (isset($_SESSION[$key])) {

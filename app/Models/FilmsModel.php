@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Cinema\Model;
+namespace App\Cinema\Models;
 
-use App\Cinema\Lib\Model;
-use App\Cinema\Lib\Session;
+use App\Cinema\Core\Model;
 use PDO;
 
 /**
@@ -211,7 +210,7 @@ class FilmsModel extends Model
             $result = $this->db->prepare('
                 SELECT (SELECT COUNT(`id`) as count
                         FROM actors
-                        WHERE `name` LIKE :searchText
+                        WHERE `name` LIKE :searchStr
                        ) as count,
                        f.id,
                        fa.`id_actor`,

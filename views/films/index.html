@@ -28,7 +28,8 @@
         </li>
         <?php else: ?>
         <li class="page-item">
-            <a class="page-link" href="/films/index?page<?=$button->page?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
+            <a class="page-link"
+               href="/films/index?page<?=$button->page?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
                 <?=$button->text?>
             </a>
         </li>

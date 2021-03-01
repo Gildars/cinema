@@ -1,22 +1,26 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 
-use App\Cinema\Lib\Config;
+use App\Cinema\Core\Config;
 
+/**
+ * Class Router
+ * @package App\Cinema\Core
+ */
 class Router
 {
-    protected $uri;
+    protected string $uri;
 
-    protected $controller;
+    protected string $controller;
 
-    protected $action;
+    protected string $action;
 
-    protected $params;
+    protected array $params;
 
-    protected $route;
+    protected string $route;
 
-    protected $method_prefix;
+    protected mixed $method_prefix;
 
 
     public function getUri(): string
@@ -49,31 +53,28 @@ class Router
         return $this->method_prefix;
     }
 
-    //парсинг запроса
+    /**
+     * Router constructor.
+     * @param $uri
+     */
     public function __construct($uri)
     {
-        $this->uri = urldecode(trim($uri, '/'));// очищаем от слешей и правильно обрабатываем закодированые символы из урл
+        $this->uri = urldecode(trim($uri, '/'));
 
         $routes = Config::get('routes'); // получаем список роутеров
         $this->route = Config::get('default_route');
-        $this->method_prefix = isset($routes[$this->route]) ? $routes[$this->route] : ''; // получаем методы префиксов по умолчанию
+        $this->method_prefix = $routes[$this->route] ?? '';
         $this->controller = Config::get('default_controller');
         $this->action = Config::get('default_action');
-        //разбор ури
+        // pars uri
         $uri_parts = explode('?', $this->uri); //разделяем ури
-        $path = $uri_parts[0];// тепеь строка дял парсинга из которой мы будем получать параметри будет находится $uri_parts[0]
+        $path = $uri_parts[0];
         $path_parts = explode('/', $path);
-        /*if (strlen($path) > 0)  {
-            $path_parts = explode('/', $path);
-        }else{
-            $path_parts = null;
-        }*/
-        //echo "<pre>"; print_r($path_parts); echo "</pre>";
 
         if (count($path_parts)) {
             if (in_array(strtolower(current($path_parts)), array_keys($routes))) {
                 $this->route = strtolower(current($path_parts));
-                $this->method_prefix = isset($routes[$this->route]) ? $routes[$this->route] : '';
+                $this->method_prefix = $routes[$this->route] ?? '';
                 array_shift($path_parts);
             }
             if (current($path_parts)) {
@@ -88,7 +89,11 @@ class Router
         }
     }
 
-    public static function redirect($location)
+
+    /**
+     * @param string $location
+     */
+    public static function redirect(string $location)
     {
         header("Location:$location");
     }

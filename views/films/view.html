@@ -1,4 +1,3 @@
-<?php if(isset($data['film'])) {?>
 <div class="col-md-12" style="">
     <div class="card-body">
         <h2 class="card-title" id="titleFilm"><?=$data['film'][0]['title']?></h2>
@@ -16,33 +15,29 @@
     </div>
     <table class="table">
         <tbody>
-        <?php
-        $countActors = 0;
-        foreach($data['film'] as $actor){
-        ($actor['name']) ? $countActors = 1 : $countActors;
-        if($countActors >= 1){
-        ?>
-        <tr>
-            <td><?=$actor['name']?></td>
-        </tr>
-        <?php }else{ ?>
-        <tr>
-            <td>Данные об актерском составе отсутствуют</td>
-        </tr>
-        <?php
-        }
-        }
-        ?>
+        <?php $countActors = 0; ?>
+            <?php foreach ($data['film'] as $actor):
+            $countActors = ($actor['name']) ?? $countActors = 1 ?? $countActors;
+            ?>
+            <?php if ($countActors >= 1): ?>
+                <tr>
+                    <td><?=$actor['name']?></td>
+                </tr>
+            <?php else: ?>
+                <tr>
+                    <td>Данные об актерском составе отсутствуют</td>
+                </tr>
+            <?php endif; ?>
+        <?php endforeach; ?>
         </tbody>
     </table>
 </div>
-<?php } ?>
 <script>
     document.getElementById('removeFilm').onclick = function () {
         let titleFilm = document.getElementById('titleFilm').innerText;
         let idFilm = document.getElementById('idFilm').innerText.slice(2);
         if (confirm('Вы хоитет удалить фильм ' + titleFilm + '?')) {
-            location.href = '/films/remove/' + idFilm;
+            location.href = '/films/remove?id=' + idFilm;
         }
     };
 </script>

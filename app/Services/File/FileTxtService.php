@@ -2,8 +2,8 @@
 
 namespace App\Cinema\Services\File;
 
-use App\Cinema\Lib\Session;
-use App\Cinema\Model\FilmsModel;
+use App\Cinema\Core\Session;
+use App\Cinema\Models\FilmsModel;
 
 /**
  * Class FileTxtService

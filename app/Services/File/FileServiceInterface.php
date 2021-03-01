@@ -2,7 +2,6 @@
 
 namespace App\Cinema\Services\File;
 
-
 /**
  * Interface FileServiceInterface
  * @package App\Cinema\Services\File

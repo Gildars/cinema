@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cinema\Lib;
+namespace App\Cinema\Core;
 
 /**
  * Class Controller
@@ -8,18 +8,18 @@ namespace App\Cinema\Lib;
  */
 class Controller
 {
-    protected $data;
+    protected array $data;
 
     protected $model;
 
     protected $params;
 
-    protected $pageTitle;
+    protected string $pageTitle;
 
     /**
-     * @return array|mixed
+     * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
@@ -27,7 +27,7 @@ class Controller
     /**
      * @return string
      */
-    public function getPageTitle()
+    public function getPageTitle(): string
     {
         return $this->pageTitle;
     }
@@ -37,14 +37,16 @@ class Controller
         return $this->model;
     }
 
-    public function getParams()
+    /**
+     * @return mixed
+     */
+    public function getParams(): mixed
     {
         return $this->params;
     }
 
     /**
      * Controller constructor.
-     * @param $pageName
      * @param array $data
      */
     public function __construct($data = [])
