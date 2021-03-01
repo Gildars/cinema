@@ -2,8 +2,8 @@
 
 namespace App\Cinema\Requests;
 
+use App\Cinema\Core\Session;
 use App\Cinema\Exceptions\ValidationException;
-use App\Cinema\Lib\Session;
 
 /**
  * Class FilmRequest
@@ -11,6 +11,13 @@ use App\Cinema\Lib\Session;
  */
 class FilmRequest extends Request
 {
+    public function __construct(array $getParams)
+    {
+        parent::__construct($getParams);
+        foreach ($this->params as $key => $value) {
+            $this->params[$key] = $this->antiXSS->xss_clean($value);
+        }
+    }
 
     /**
      * @return bool
@@ -51,6 +58,9 @@ class FilmRequest extends Request
             }
             if (!preg_match('/^[1-9][0-9]{3}$/', $this->params['release'])) {
                 throw new ValidationException('Некоректный год.');
+            }
+            if ($this->params['release'] < 1850) {
+                throw new ValidationException('Год выпуска не может быть меньше 1850 года.');
             }
             if ($this->params['release'] > date('Y')) {
                 throw new ValidationException('Год выпуска не может перевышать текущий.');
