@@ -81,10 +81,10 @@ The application is written according to the MVC methodology.
 <br>
 `Config::set('salt', '23fd45g2f839');` - salt
 <br>
-4. Run command `php composer install`
-5. Switch to directory `/webroot`
-6. Run command php -S localhost:8000
-7. Is ready.
+4. Run command `php composer install`  
+5. Switch to directory `/webroot`  
+6. Run command `php -S localhost:8000`  
+7. Is ready.  
 
 
 
