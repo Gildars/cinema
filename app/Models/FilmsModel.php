@@ -3,6 +3,7 @@
 namespace App\Cinema\Models;
 
 use App\Cinema\Core\Model;
+use App\Cinema\Core\Session;
 use PDO;
 
 /**
@@ -33,7 +34,7 @@ class FilmsModel extends Model
             $films = $this->db->prepare('
                 SELECT `id`, `title`, `release` 
                 FROM films 
-                ORDER BY `title` + 0 ASC, `title` ASC
+                ORDER BY `title` + 0 ASC, `title` COLLATE  utf8_unicode_ci
                 LIMIT :limitOfStart, :amount
             ');
         } else {
@@ -69,19 +70,61 @@ class FilmsModel extends Model
     }
 
     /**
-     * @param string $fullName
-     * @return bool
+     * @param string $title
+     * @param int $release
+     * @param string $format
+     * @return array|false
      */
-    public function addActor(string $fullName): bool
+    public function getFilmsWithActor(string $title, int $release, string $format): array|false
     {
-        $queryAddActor = $this->db->prepare('
-            INSERT INTO actors 
-            SET
-            `name` = :ActorName
-        ');
-        return $queryAddActor->execute(['ActorName' => $fullName]);
+        $result = $this->db->prepare('
+            SELECT films.`id`,
+                   `title`,
+                   films.`release`,
+                   films.`format`,
+                   `name`,
+                   films_actors.`id_film`,
+                   films_actors.`id_actor`
+            FROM films
+                     LEFT JOIN films_actors ON films_actors.`id_film` = films.`id`
+                     LEFT JOIN actors ON films_actors.`id_actor` = actors.`id`
+            WHERE films.`title` = :title AND films.`release` = :releaseYear AND films.`format` = :format
+            ');
+
+        $result->execute([
+            'title' => $title,
+            'releaseYear' => $release,
+            'format' => $format
+        ]);
+        return $result->fetchAll();
     }
 
+    /**
+     * @param $films
+     * @param $film
+     * @return bool
+     */
+    private function compareFilms($films, $film): bool
+    {
+        $idFilms = [];
+        foreach ($films as $item) {
+            $idFilms[] = $item['id_film'];
+        }
+
+        $idFilms = array_unique($idFilms, SORT_REGULAR);
+        $sortedActors = [];
+        foreach ($films as $item) {
+            if (in_array($item['id_film'], $idFilms)) {
+                $sortedActors[$item['id_film']][] = $item['name'];
+            }
+        }
+        foreach ($sortedActors as $item) {
+            if (empty(array_diff($film['name'], $item))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @param array $data
@@ -91,15 +134,31 @@ class FilmsModel extends Model
     {
         $this->db->beginTransaction();
         try {
-            $this->addFilm($data);
+            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            try { //checking the uniqueness of the film and actors
+                if ($films = $this->getFilmsWithActor($data['title'], $data['release'], $data['format'])) {
+                    if ($this->compareFilms($films, $data)) {
+                        throw new \PDOException('Такой фильм уже существует.');
+                    }
+                }
+                $this->addFilm($data);
+            } catch (\PDOException $exception) {
+                throw new \PDOException("Фильм с название ${data['title']} существует.");
+            }
 
             $idFilm = $this->db->lastInsertId();
             $idActors = [];
-
-            foreach ($data['name'] as $fullName) {
-                $this->addActor($fullName);
-                $idActors[] = $this->db->lastInsertId();
+            $actorsModel = new ActorsModel();
+            foreach ($data['name'] as $fullName) { // add actors
+                if ($foundIdActor = $actorsModel->getActorByName($fullName)) {
+                    $idActors[] = $foundIdActor['id'];
+                } else {
+                    $actorsModel->addActor($fullName);
+                    // The INSERT query failed due to a key constraint violation.
+                    $idActors[] = $this->db->lastInsertId();
+                }
             }
+
 
             foreach ($idActors as $id) {
                 $queryAddFilms = $this->db->prepare('
@@ -114,6 +173,7 @@ class FilmsModel extends Model
             return true;
         } catch (\PDOException $exception) {
             $this->db->rollBack();
+            Session::setFlash($exception->getMessage());
             return false;
         }
     }
@@ -171,7 +231,7 @@ class FilmsModel extends Model
                        `release`
                 FROM films
                 WHERE `title` LIKE :searchText
-                ORDER BY `title` + 0 ASC, `title` ASC
+                ORDER BY `title` + 0 ASC, `title` ASC  COLLATE  utf8_unicode_ci
                 LIMIT :limitOfStart, :amount
             ');
         } else {
@@ -222,7 +282,7 @@ class FilmsModel extends Model
                          INNER JOIN films_actors AS fa ON fa.id_actor = a.id
                          INNER JOIN films AS f ON f.id = fa.id_film
                 WHERE `name` LIKE :searchText
-                ORDER BY `title` + 0 ASC, `title` ASC
+                ORDER BY `title` + 0 ASC, `title` ASC  COLLATE  utf8_unicode_ci
                 LIMIT :limitOfStart, :amount
             ');
         } else {

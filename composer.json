@@ -12,7 +12,8 @@
     "require": {
         "ext-mysqli": "*",
         "ext-mbstring": "*",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+        "voku/anti-xss": "^4.1"
     },
     "autoload": {
         "psr-4": {
