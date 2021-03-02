@@ -55,19 +55,19 @@ class Router
 
     /**
      * Router constructor.
-     * @param $uri
+     * @param string $uri
      */
-    public function __construct($uri)
+    public function __construct(string $uri)
     {
         $this->uri = urldecode(trim($uri, '/'));
 
-        $routes = Config::get('routes'); // получаем список роутеров
+        $routes = Config::get('routes');
         $this->route = Config::get('default_route');
         $this->method_prefix = $routes[$this->route] ?? '';
         $this->controller = Config::get('default_controller');
         $this->action = Config::get('default_action');
         // pars uri
-        $uri_parts = explode('?', $this->uri); //разделяем ури
+        $uri_parts = explode('?', $this->uri);
         $path = $uri_parts[0];
         $path_parts = explode('/', $path);
 
@@ -93,7 +93,7 @@ class Router
     /**
      * @param string $location
      */
-    public static function redirect(string $location)
+    public static function redirect(string $location): void
     {
         header("Location:$location");
     }
