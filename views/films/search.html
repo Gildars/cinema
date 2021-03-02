@@ -15,25 +15,26 @@
     <p>Фильмов не найдено...</p>
 <?php endif; ?>
 
-
+<?php if (!empty($data['films'])): ?>
     <nav aria-label="Page navigation example">
-    <ul class="pagination">
-        <?php foreach ($data['button']->buttons as $button): ?>
-        <?php if ($button->isActive) : ?>
-        <li class="page-item active">
-            <a class="page-link"
-               href="/films/search?page=<?=$button->page?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
+        <ul class="pagination">
+            <?php foreach ($data['button']->buttons as $button): ?>
+            <?php if ($button->isActive) : ?>
+            <li class="page-item active">
+                <a class="page-link"
+                   href="/films/search?page=<?=$button->page?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
+                    <?=$button->text?>
+                </a>
+            </li>
+            <?php else : ?>
+            <li class="page-item">
+                <a class="page-link"
+                   href="/films/search?page=<?=$button->page?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
                 <?=$button->text?>
             </a>
-        </li>
-        <?php else : ?>
-        <li class="page-item">
-            <a class="page-link"
-               href="/films/search?page=<?=$button->page?>&by=<?=$_GET['by']?>&what=<?=$_GET['what']?><?php echo (isset($_GET['order'])) ? '&order=ASC' : ' ';?>">
-            <?=$button->text?>
-        </a>
-        </li>
-        <?php endif; ?>
-        <?php endforeach; ?>
-    </ul>
-</nav>
+            </li>
+            <?php endif; ?>
+            <?php endforeach; ?>
+        </ul>
+    </nav>
+<?php endif; ?>
