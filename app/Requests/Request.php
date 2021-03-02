@@ -14,9 +14,10 @@ abstract class Request
 
     protected AntiXSS $antiXSS;
 
-    public function __construct(array $getParams)
+    public function __construct(array $params)
     {
-        $this->params = $getParams;
+        $this->params = $params;
+        $this->trimAll($this->params);
         $this->antiXSS = new AntiXSS();
     }
 
@@ -26,5 +27,19 @@ abstract class Request
     public function getParams(): array
     {
         return $this->params;
+    }
+
+    /**
+     * @param $array
+     */
+    protected function trimAll(&$array): void
+    {
+        foreach ($array as &$value) {
+            if (!is_array($value)) {
+                $value = trim($value);
+            } else {
+                $this->trimAll($value);
+            }
+        }
     }
 }
