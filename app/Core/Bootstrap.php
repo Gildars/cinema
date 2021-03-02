@@ -53,14 +53,7 @@ class Bootstrap
                 );
             }
         } catch (NotFoundTemplateException $exception) {
-            $controller_object = new PagesController();
-            $controller_object->notFound();
-            $view_object = new View(
-                'Страница не найдена',
-                $controller_object->getData(),
-                '../views/pages/notFound.html'
-            );
-            $content = $view_object->render();
+            Router::redirect('/pages/notFound');
         } finally {
             $layout_path = VIEWS_PATH . DS . $layout . '.html';
             $layout_view_object = new View($controller_object->getPageTitle(), compact('content'), $layout_path);
