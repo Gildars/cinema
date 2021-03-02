@@ -19,7 +19,7 @@ class PagesController extends Controller
         parent::__construct($data);
     }
 
-    public function notFound() //TODO Добавить поддержку страницы 404
+    public function notFound()
     {
         $this->pageTitle = 'Страница не найдена';
     }
